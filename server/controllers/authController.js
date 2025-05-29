@@ -3,6 +3,7 @@ const catchAsync = require('../utility/catchAsync');
 const Users = require('../model/user');
 const bcrypt=require('bcrypt');
 require('dotenv').config()
+// const { env } = require('process');
 
 
 exports.login=catchAsync(async(req,res,next)=>{
@@ -19,7 +20,7 @@ exports.login=catchAsync(async(req,res,next)=>{
     return res.status(401).json({ message: 'Invalid username or password' });
 
     }
-    const token=jwt.sign({id:findUser.id,username:findUser.username},'123',{
+    const token=jwt.sign({id:findUser.id,username:findUser.username},process.env.secret_api_key,{
         expiresIn:'3h'
     });
     res.status(200).json({

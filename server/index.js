@@ -4,15 +4,18 @@ const mongoose = require("mongoose");
 const { Server } = require("socket.io");
 const http = require("http");
 const app=require('./app')
+const { env } = require('process');
+const dotenv = require('dotenv');
+dotenv.config({ path: './config.env' });
 
 
-
+const DB = process.env.database_url
 mongoose
   .connect(
-    'mongodb+srv://ahmed:zNbR9TBgp4AdvxaD@cluster0.0bihnsc.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'
+    DB
   )
   .then(() => console.log('MongoDB connected successfully'))
-  .catch(()=>console.Console.log('there a error to connect to mongog'))
+  .catch(()=>console.log('there a error to connect to mongog'))
   
 const httpServer = http.createServer(app);
 

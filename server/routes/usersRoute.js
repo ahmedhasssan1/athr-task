@@ -9,8 +9,10 @@ const authController= require('../controllers/authController');
 router
     .route('/')
     .post(handlerFactory.createOne(Users))
-    .get()
+    .get(handlerFactory.getAll(Users))
 
+router.route('/:id').patch(handlerFactory.updateOne(Users))
 router.route('/auth').post(authController.login)
+
 
 module.exports = router;
