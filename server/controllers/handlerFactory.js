@@ -72,8 +72,8 @@ exports.createOne = (model) =>
 
 exports.getDocumentById = (model) =>
   catchAsync(async (req, res, next) => {
-    const userId=req.params.id;
-    let findOne = await model.findById(userId);
+    const doc=req.params.id;
+    let findOne = await model.findById(doc);
     if(!findOne || findOne.isDeleted){
         return res.status(404).json({message:"this user has been deleted"})
     }

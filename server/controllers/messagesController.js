@@ -15,7 +15,7 @@ exports.getChat = catchAsync(async (req, res) => {
     ],
   }).sort({ createdAt: 1 });
 
-  console.log('📥 Chat messages between', user1, 'and', user2, ':', messages);
+  console.log('Chat messages between', user1, 'and', user2, ':', messages);
 
   res.status(200).json({
     status: 'success',

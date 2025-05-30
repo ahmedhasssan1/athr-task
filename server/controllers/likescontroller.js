@@ -3,20 +3,30 @@ const Post = require('../model/posts');
 const Comment = require('../model/comments');
 const catchAsync = require('../utility/catchAsync');
 
+
+function validateLikeREquest(postID,commentID){
+  if(!postID && !commentID){
+    return {valid:false,message:"you either like posta or comment"}
+  }
+  if( postID && commentID){
+    return {valid:false,message:"you either like posta or comment"}
+  }
+  return {valid:true}
+
+}
+
+
+
 exports.createLike = catchAsync(async (req, res, next) => {
   const { user_id, post_id, comment_id } = req.body;
 
-  if (!post_id && !comment_id) {
-    return res
-      .status(400)
-      .json({ message: 'You must like either a post or a comment' });
+  const validation=validateLikeREquest(post_id,comment_id);
+  if(!validation.valid){
+    return res.status(400).json({
+      message:validation.message
+    })
   }
 
-  if (post_id && comment_id) {
-    return res
-      .status(400)
-      .json({ message: 'You can only like one: post or comment' });
-  }
 let filter = { user_id };
 
 if (comment_id) {
@@ -53,16 +63,11 @@ if (existingLike) {
 exports.unlike = catchAsync(async (req, res, next) => {
   const { comment_id, post_id, user_id } = req.body;
 
-  if (!post_id && !comment_id) {
+ const validation=validateLikeREquest(post_id,comment_id);
+  if(!validation.valid){
     return res.status(400).json({
-      message: 'You must unlike either a post or a comment.',
-    });
-  }
-
-  if (post_id && comment_id) {
-    return res.status(400).json({
-      message: 'You can only unlike one: post or comment.',
-    });
+      message:validation.message
+    })
   }
 
   const filter = { user_id };

@@ -47,7 +47,7 @@ const userSchema = new mongoose.Schema({
     type:Boolean,
     default:false
   },
-  acceessToken:{
+  accessToken:{
     type:String,
     default:null
 

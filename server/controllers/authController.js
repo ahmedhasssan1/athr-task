@@ -5,6 +5,16 @@ const bcrypt = require('bcrypt');
 const AppError = require('../utility/errorHandler');
 require('dotenv').config();
 
+function generateToken(req){
+   if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith('Bearer')
+  ) {
+    return req.headers.authorization.split(' ')[1];
+  }
+  return null;
+}
+
 
 exports.login = catchAsync(async (req, res, next) => {
   const { password, email } = req.body;
@@ -27,11 +37,11 @@ exports.login = catchAsync(async (req, res, next) => {
     { id: findUser.id, username: findUser.username },
     process.env.secret_api_key,
     {
-      expiresIn: '8h',
+      expiresIn: '1h',
     }
   );
-   findUser.accessToken=token;
-   await findUser.save()
+  findUser.accessToken = token;
+  await findUser.save();
   res.status(200).json({
     status: 'success',
     token: {
@@ -43,19 +53,11 @@ exports.login = catchAsync(async (req, res, next) => {
 
 
 exports.getCurrentUser = catchAsync(async (req, res, next) => {
-  let token;
-
-  // 1. Extract token from header (Authorization: Bearer <token>)
-  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-    token = req.headers.authorization.split(' ')[1];
-  }
-  console.log('test',token)
-
+  let token=generateToken(req)
   if (!token) {
     return next(new AppError('You are not logged in. Please log in to get authorized.', 401));
   }
 
-  // 2. Verify token
   let decoded;
   try {
     decoded = jwt.verify(token, process.env.secret_api_key);
@@ -76,14 +78,7 @@ exports.getCurrentUser = catchAsync(async (req, res, next) => {
 });
 
 exports.validateToken = catchAsync(async (req, res, next) => {
-  let token;
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith('Bearer')
-  ) {
-    token = req.headers.authorization.split(" ")[1];
-  }
-  console.log('Token received:',token);
+  let token=generateToken(req)
   if (!token) {
     return next(
       new AppError('you are not loged in please log in to get authorized', 401)
@@ -94,7 +89,7 @@ exports.validateToken = catchAsync(async (req, res, next) => {
     if (!user) {
       return res.status(403).json({
         error: true,
-        message: "Authorization error",
+        message: "Authorization error not found user with this token",
       });
     }
 
@@ -108,7 +103,7 @@ exports.validateToken = catchAsync(async (req, res, next) => {
     }
 
     req.decoded = decoded;
-    req.user = user;  // <-- attach user info here
+    req.user = user;
 
     next();
   } catch (error) {
