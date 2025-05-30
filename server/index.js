@@ -54,8 +54,13 @@ io.use((socket, next) => {
   next();
 });
 
+
+const userMap = new Map(); // userID (socket.id) => username
+
 io.on("connection", (socket) => {
   // fetch existing users
+  userMap.set(socket.id, socket.username);
+
   const users = [];
   for (let [id, socket] of io.of("/").sockets) {
     users.push({
@@ -73,11 +78,13 @@ io.on("connection", (socket) => {
 
   // forward the private message to the right recipient
   socket.on("private message", async({ content, to }) => {
+        const toUsername = userMap.get(to); // get username from socket.id
+
     try{
       await Message.create({
         content,
         from:socket.username,
-        to
+        to:toUsername
       })
     }catch(errot){
       console.error("failed to save messages")
