@@ -31,10 +31,11 @@ exports.login = catchAsync(async (req, res, next) => {
   }
   const checkPassword = await bcrypt.compare(password, findUser.password);
   if (!checkPassword) {
-    return res.status(401).json({ message: 'password incorectcorrect' });
+    return next(new AppError('the password is incorrect'));
     //or using app error
   }
 
+  // it suppose using refresh token to make the user login longer 
   const token = jwt.sign(
     { id: findUser.id, username: findUser.username },
     process.env.secret_api_key,
@@ -56,9 +57,7 @@ exports.getCurrentUser = catchAsync(async (req, res, next) => {
   if (!token) {
     return next(
       new AppError(
-        'You are not logged in. Please log in to get authorized.',
-        401
-      )
+        'You are not logged in. Please log in to get authorized.',401)
     );
   }
 
