@@ -10,6 +10,11 @@ router.route("/")
 .patch(handlerFactory.updateOne(Comment))
 .get(handlerFactory.getAll(Comment))
 
-router.route("/:id").delete(deleteComment)
+
+
+router.route("/:id")
+.delete(deleteComment)
+.patch(handlerFactory.updateOne(Comment))
+
 
 module.exports=router
