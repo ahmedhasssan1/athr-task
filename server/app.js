@@ -13,5 +13,5 @@ app.use("/users", UserRouter);
 app.use("/posts",postsRoute)
 app.use("/comments",commentRoute)
 app.use("/likes",likesRoute)
-app.use('/messgaes',messageRoute)
+app.use('/messages',messageRoute)
 module.exports = app;

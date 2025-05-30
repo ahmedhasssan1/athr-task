@@ -5,6 +5,7 @@ const Comment = require('../model/comments');
 const { deleteComment, createComment } = require('../controllers/commentController');
 
 
+//http://localhost:5000/comments
 
 
 router.route("/")

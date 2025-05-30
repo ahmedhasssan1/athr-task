@@ -5,11 +5,14 @@ const Post = require('../model/posts');
 const { usersPosts } = require('../controllers/postController');
 
 
+//http://localhost:5000/posts
+
+
 //get all posts sith option to apply pagenition
 
 router.route('/')
 .post(handlerFactory.createOne(Post))
-.get(handlerFactory.getAll(Post))
+.get(handlerFactory.getAll(Post))    //applied pagenition ti this route  in bouns requirement
 
 
 
