@@ -7,6 +7,10 @@ const authController= require('../controllers/authController');
 
 //http://localhost:5000/users
 
+
+
+// protect all user route to check if they have a valid token 
+
 router
     .route('/')
     .post(handlerFactory.createOne(Users))

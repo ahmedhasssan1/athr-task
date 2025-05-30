@@ -42,8 +42,7 @@ exports.login = catchAsync(async (req, res, next) => {
       expiresIn: '1h',
     }
   );
-  // findUser.accessToken = token;
-  // await findUser.save();
+
   res.status(200).json({
     status: 'success',
     token: {
