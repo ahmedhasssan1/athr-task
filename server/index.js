@@ -1,6 +1,4 @@
 const mongoose = require('mongoose');
-// const httpServer = require("http").createServer();
-// const { Socket } = require("socket.io");
 const { Server } = require('socket.io');
 const http = require('http');
 const app = require('./app');
