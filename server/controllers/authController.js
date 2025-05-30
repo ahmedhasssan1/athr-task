@@ -31,6 +31,7 @@ exports.login = catchAsync(async (req, res, next) => {
   const checkPassword = await bcrypt.compare(password, findUser.password);
     if (!checkPassword) {
       return res.status(401).json({ message: 'password incorectcorrect' });
+      //or using app error 
     }
 
   const token = jwt.sign(
