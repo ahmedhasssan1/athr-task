@@ -47,11 +47,11 @@ const userSchema = new mongoose.Schema({
     type:Boolean,
     default:false
   },
-  accessToken:{
-    type:String,
-    default:null
+  // accessToken:{
+  //   type:String,
+  //   default:null
 
-  }
+  // }
 
 })
 

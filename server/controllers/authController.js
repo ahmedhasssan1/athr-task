@@ -5,7 +5,7 @@ const bcrypt = require('bcrypt');
 const AppError = require('../utility/errorHandler');
 require('dotenv').config();
 
-function generateToken(req) {
+function validationOfToken(req) {
   if (
     req.headers.authorization &&
     req.headers.authorization.startsWith('Bearer')
@@ -42,8 +42,8 @@ exports.login = catchAsync(async (req, res, next) => {
       expiresIn: '1h',
     }
   );
-  findUser.accessToken = token;
-  await findUser.save();
+  // findUser.accessToken = token;
+  // await findUser.save();
   res.status(200).json({
     status: 'success',
     token: {
@@ -53,7 +53,7 @@ exports.login = catchAsync(async (req, res, next) => {
 });
 
 exports.getCurrentUser = catchAsync(async (req, res, next) => {
-  let token = generateToken(req);
+  let token = validationOfToken(req);
   if (!token) {
     return next(
       new AppError(
@@ -84,14 +84,17 @@ exports.getCurrentUser = catchAsync(async (req, res, next) => {
 });
 
 exports.validateToken = catchAsync(async (req, res, next) => {
-  let token = generateToken(req);
+  let token = validationOfToken(req);
   if (!token) {
     return next(
       new AppError('you are not loged in please log in to get authorized', 401)
     );
   }
+  const decoded = jwt.verify(token, process.env.secret_api_key);
+
   try {
-    const user = await Users.findOne({ accessToken: token });
+   
+    const user = await Users.findById(decoded.id);
     if (!user) {
       return res.status(403).json({
         error: true,
@@ -99,14 +102,13 @@ exports.validateToken = catchAsync(async (req, res, next) => {
       });
     }
 
-    const decoded = jwt.verify(token, process.env.secret_api_key);
 
-    if (user.username !== decoded.username) {
-      return res.status(401).json({
-        error: true,
-        message: 'Invalid token',
-      });
-    }
+    // if (user.username !== decoded.username) {
+    //   return res.status(401).json({
+    //     error: true,
+    //     message: 'Invalid token',
+    //   });
+    // }
 
     req.decoded = decoded;
     req.user = user;
