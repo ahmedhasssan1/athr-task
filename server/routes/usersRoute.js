@@ -5,13 +5,22 @@ const Users = require('../model/user');
 const authController= require('../controllers/authController');
 
 
+//http://localhost:5000/users
 
 router
     .route('/')
     .post(handlerFactory.createOne(Users))
-    .get(handlerFactory.getAll(Users))
+    .get(handlerFactory.getAllUsers(Users))
 
-router.route('/:id').patch(handlerFactory.updateOne(Users))
+router.route('/getAllUsers').get(authController.validateToken,handlerFactory.getAll(Users))
+router.route('/getCurrentUser').post(authController.getCurrentUser)
+
+//router with id as params
+router.route('/:id')
+.patch(authController.validateToken,handlerFactory.updateOne(Users))
+.delete(authController.validateToken,handlerFactory.softDelete(Users))
+.get(authController.validateToken,handlerFactory.getDocumentById(Users))
+
 router.route('/auth').post(authController.login)
 
 

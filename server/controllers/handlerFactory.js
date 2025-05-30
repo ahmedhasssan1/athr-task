@@ -1,4 +1,32 @@
-const catchAsync=require('./../utility/catchAsync')
+const catchAsync=require('./../utility/catchAsync');
+const AppError = require('../utility/errorHandler');
+
+
+exports.softDelete = (model) => {
+  return catchAsync(async (req, res, next) => {
+    const userId = req.params.id;
+
+    const findDocument = await model.findByIdAndUpdate(
+      userId,
+      { isDeleted: true },
+      { new: true, runValidators: true }
+    );
+
+    if (!findDocument) {
+      return res.status(404).json({
+        message: "No record exists with this ID"
+      });
+    }
+
+    res.status(200).json({
+      status: "success",
+      data: {
+        findDocument
+      }
+    });
+  });
+};
+
 
 exports.deleteone = (Model) =>
   catchAsync(async (req, res, next) => {
@@ -42,24 +70,25 @@ exports.createOne = (model) =>
     });
   });
 
-exports.getIDdoc = (model, populateOption) =>
+exports.getDocumentById = (model) =>
   catchAsync(async (req, res, next) => {
-    let query = model.findById(req.params.id);
-    if (populateOption) query.populate(populateOption);
-    const doc = await query;
-    if (!doc) {
-      return next('threr a error');
+    const userId=req.params.id;
+    let findOne = await model.findById(userId);
+    if(!findOne || findOne.isDeleted){
+        return res.status(404).json({message:"this user has been deleted"})
     }
+    
     res.status(200).json({
       status: 200,
       data: {
-        doc,
+        findOne,
       },
     });
   });
 
 exports.getAll = (model) =>
   catchAsync(async (req, res, next) => {
+
     const doc = await model.find();
     res.status(200).json({
       result: doc.length,
@@ -70,6 +99,18 @@ exports.getAll = (model) =>
     });
   });
 
+  exports.getAllUsers = (model) =>
+  catchAsync(async (req, res, next) => {
+    
+    const doc = await model.find({isDeleted:false});
+    res.status(200).json({
+      result: doc.length,
+      status: 'succes',
+      data: {
+        doc,
+      },
+    });
+  });
 exports.getMe = (req, res, next) => {
   req.params.id = req.user.id;
   next();
