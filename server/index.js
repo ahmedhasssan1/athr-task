@@ -7,9 +7,9 @@ const app=require('./app')
 const { env } = require('process');
 const dotenv = require('dotenv');
 dotenv.config({ path: './config.env' });
+const Message=require('./model/messages')
 
-
-const DB = process.env.database_url
+const DB = process.env.dataBase_Url
 mongoose
   .connect(
     DB
@@ -36,12 +36,12 @@ const io = new Server(httpServer, {
 
 
 
-const messageSchema = new mongoose.Schema({
-  message: String,
-  username: String,
-  createdAt: { type: Date, default: Date.now },
-});
-const Message = mongoose.model("Message", messageSchema);
+// const messageSchema = new mongoose.Schema({
+//   message: String,
+//   username: String,
+//   createdAt: { type: Date, default: Date.now },
+// });
+// const Message = mongoose.model("Message", messageSchema);
 
 
 
@@ -72,7 +72,16 @@ io.on("connection", (socket) => {
   });
 
   // forward the private message to the right recipient
-  socket.on("private message", ({ content, to }) => {
+  socket.on("private message", async({ content, to }) => {
+    try{
+      await Message.create({
+        content,
+        from:socket.username,
+        to
+      })
+    }catch(errot){
+      console.error("failed to save messages")
+    }
     socket.to(to).emit("private message", {
       content,
       from: socket.id,
@@ -115,7 +124,7 @@ mongoose.connection.once("open", () => {
   console.log("MongoDB connection is open");
 
   // Start Change Stream watching
-  startChangeStream();
+  // startChangeStream();
 
   const PORT = process.env.PORT || 3000;
   httpServer.listen(PORT, () =>
