@@ -4,6 +4,8 @@ const handlerFactory=require('./../controllers/handlerFactory');
 const Post = require('../model/posts');
 
 
+//get all posts sith option to apply pagenition
+
 router.route('/')
 .post(handlerFactory.createOne(Post))
 .get(handlerFactory.getAll(Post))

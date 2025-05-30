@@ -88,8 +88,11 @@ exports.getDocumentById = (model) =>
 
 exports.getAll = (model) =>
   catchAsync(async (req, res, next) => {
-
-    const doc = await model.find();
+    const page = parseInt(req.query.page);
+    const limit = parseInt(req.query.limit);
+    const startIndex = (page - 1) * limit;
+    
+    const doc = await model.find().skip(startIndex).limit(limit);
     res.status(200).json({
       result: doc.length,
       status: 'succes',
