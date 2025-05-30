@@ -39,7 +39,7 @@ exports.login = catchAsync(async (req, res, next) => {
     { id: findUser.id, username: findUser.username },
     process.env.secret_api_key,
     {
-      expiresIn: '1h',
+      expiresIn: '10s',
     }
   );
 
@@ -89,43 +89,26 @@ exports.validateToken = catchAsync(async (req, res, next) => {
       new AppError('you are not loged in please log in to get authorized', 401)
     );
   }
-  const decoded = jwt.verify(token, process.env.secret_api_key);
-
+  let decoded;
   try {
+    decoded = jwt.verify(token, process.env.secret_api_key);
+  } catch (err) {
+    return next(
+      new AppError('Invalid or expired token. Please log in again.', 401)
+    );
+  }
+
    
     const user = await Users.findById(decoded.id);
     if (!user) {
-      return res.status(403).json({
-        error: true,
-        message: 'Authorization error not found user with this token',
-      });
+      new AppError('Authorization error: User not found for this token.', 403)
     }
 
 
-    // if (user.username !== decoded.username) {
-    //   return res.status(401).json({
-    //     error: true,
-    //     message: 'Invalid token',
-    //   });
-    // }
 
     req.decoded = decoded;
     req.user = user;
 
     next();
-  } catch (error) {
-    console.error(error);
-
-    if (error.name === 'TokenExpiredError') {
-      return res.status(403).json({
-        error: true,
-        message: 'Token expired',
-      });
-    }
-
-    return res.status(403).json({
-      error: true,
-      message: 'Authentication error',
-    });
-  }
+  
 });
