@@ -5,8 +5,8 @@ const bcrypt = require('bcrypt');
 const AppError = require('../utility/errorHandler');
 require('dotenv').config();
 
-function generateToken(req){
-   if (
+function generateToken(req) {
+  if (
     req.headers.authorization &&
     req.headers.authorization.startsWith('Bearer')
   ) {
@@ -15,24 +15,25 @@ function generateToken(req){
   return null;
 }
 
-
 exports.login = catchAsync(async (req, res, next) => {
   const { password, email } = req.body;
   if (!password || !email) {
-     res
+    res
       .status(400)
       .json({ message: 'must be password and username toghether' });
   }
   const findUser = await Users.findOne({ email: email });
-  
+
   if (!findUser) {
-    return res.status(401).json({ message: 'Invalid username or password in find user' });
+    return res
+      .status(401)
+      .json({ message: 'Invalid username or password in find user' });
   }
   const checkPassword = await bcrypt.compare(password, findUser.password);
-    if (!checkPassword) {
-      return res.status(401).json({ message: 'password incorectcorrect' });
-      //or using app error 
-    }
+  if (!checkPassword) {
+    return res.status(401).json({ message: 'password incorectcorrect' });
+    //or using app error
+  }
 
   const token = jwt.sign(
     { id: findUser.id, username: findUser.username },
@@ -51,19 +52,24 @@ exports.login = catchAsync(async (req, res, next) => {
   });
 });
 
-
-
 exports.getCurrentUser = catchAsync(async (req, res, next) => {
-  let token=generateToken(req)
+  let token = generateToken(req);
   if (!token) {
-    return next(new AppError('You are not logged in. Please log in to get authorized.', 401));
+    return next(
+      new AppError(
+        'You are not logged in. Please log in to get authorized.',
+        401
+      )
+    );
   }
 
   let decoded;
   try {
     decoded = jwt.verify(token, process.env.secret_api_key);
   } catch (err) {
-    return next(new AppError('Invalid or expired token. Please log in again.', 401));
+    return next(
+      new AppError('Invalid or expired token. Please log in again.', 401)
+    );
   }
 
   // 3. Find user by decoded ID
@@ -74,12 +80,11 @@ exports.getCurrentUser = catchAsync(async (req, res, next) => {
 
   req.user = currentUser;
 
-   res.status(200).json({ status: 'success', user: currentUser });
-  
+  res.status(200).json({ status: 'success', user: currentUser });
 });
 
 exports.validateToken = catchAsync(async (req, res, next) => {
-  let token=generateToken(req)
+  let token = generateToken(req);
   if (!token) {
     return next(
       new AppError('you are not loged in please log in to get authorized', 401)
@@ -90,7 +95,7 @@ exports.validateToken = catchAsync(async (req, res, next) => {
     if (!user) {
       return res.status(403).json({
         error: true,
-        message: "Authorization error not found user with this token",
+        message: 'Authorization error not found user with this token',
       });
     }
 
@@ -99,7 +104,7 @@ exports.validateToken = catchAsync(async (req, res, next) => {
     if (user.username !== decoded.username) {
       return res.status(401).json({
         error: true,
-        message: "Invalid token",
+        message: 'Invalid token',
       });
     }
 
@@ -110,16 +115,16 @@ exports.validateToken = catchAsync(async (req, res, next) => {
   } catch (error) {
     console.error(error);
 
-    if (error.name === "TokenExpiredError") {
+    if (error.name === 'TokenExpiredError') {
       return res.status(403).json({
         error: true,
-        message: "Token expired",
+        message: 'Token expired',
       });
     }
 
     return res.status(403).json({
       error: true,
-      message: "Authentication error",
+      message: 'Authentication error',
     });
   }
 });
