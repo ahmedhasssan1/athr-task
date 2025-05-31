@@ -22,7 +22,7 @@ exports.login = catchAsync(async (req, res, next) => {
       .status(400)
       .json({ message: 'must be password and email toghether' });
   }
-  const findUser = await Users.findOne({ email: email });
+  const findUser = await Users.findOne({ email });
 
   if (!findUser) {
     return res
@@ -45,13 +45,14 @@ exports.login = catchAsync(async (req, res, next) => {
 
   res.status(200).json({
     status: 'success',
-    token: {
+    accessToken: {
       token,
     },
   });
 });
 
 exports.getCurrentUser = catchAsync(async (req, res, next) => {
+      console.log('debugging ',req.user);
 
   res.status(200).json({
   status: 'success',
@@ -81,7 +82,7 @@ exports.validateToken = catchAsync(async (req, res, next) => {
     if (!user) {
      return next( new AppError('Authorization error: User not found for this token.', 403))
     }
-
+    
 
 
     req.user = user;
