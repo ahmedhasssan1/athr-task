@@ -2,6 +2,7 @@ const Like = require('../model/likes');
 const Post = require('../model/posts');
 const Comment = require('../model/comments');
 const catchAsync = require('../utility/catchAsync');
+const AppError = require('../utility/errorHandler');
 
 
 function validateLikeREquest(postID,commentID){
@@ -22,9 +23,7 @@ exports.createLike = catchAsync(async (req, res, next) => {
 
   const validation=validateLikeREquest(post_id,comment_id);
   if(!validation.valid){
-    return res.status(400).json({
-      message:validation.message
-    })
+    return next(new AppError('you either like  comment or post '))
   }
 
 let filter = { user_id };
@@ -65,9 +64,7 @@ exports.unlike = catchAsync(async (req, res, next) => {
 
  const validation=validateLikeREquest(post_id,comment_id);
   if(!validation.valid){
-    return res.status(400).json({
-      message:validation.message
-    })
+    return next(new AppError('you must provide what  like you want to  remove'))
   }
 
   const filter = { user_id };
@@ -81,9 +78,7 @@ exports.unlike = catchAsync(async (req, res, next) => {
   const existingLike = await Like.findOne(filter);
 
   if (!existingLike) {
-    return res.status(404).json({
-      message: 'Like not found.',
-    });
+    return next(new AppError('you are not like  this to remove the like'))
   }
 
   await existingLike.deleteOne();
