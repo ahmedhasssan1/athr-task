@@ -17,7 +17,7 @@ router
     .get(handlerFactory.getAllUsers(Users))
 
 router.route('/getAllUsers').get(authController.validateToken,handlerFactory.getAll(Users))
-router.route('/getCurrentUser').post(authController.getCurrentUser)
+router.route('/getCurrentUser').post(authController.validateToken,authController.getCurrentUser)
 
 //router with id as params
 router.route('/:id')

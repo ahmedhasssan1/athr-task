@@ -20,7 +20,7 @@ exports.login = catchAsync(async (req, res, next) => {
   if (!password || !email) {
     res
       .status(400)
-      .json({ message: 'must be password and username toghether' });
+      .json({ message: 'must be password and email toghether' });
   }
   const findUser = await Users.findOne({ email: email });
 
@@ -32,7 +32,6 @@ exports.login = catchAsync(async (req, res, next) => {
   const checkPassword = await bcrypt.compare(password, findUser.password);
   if (!checkPassword) {
     return next(new AppError('the password is incorrect'));
-    //or using app error
   }
 
   // it suppose using refresh token to make the user login longer 
@@ -40,7 +39,7 @@ exports.login = catchAsync(async (req, res, next) => {
     { id: findUser.id, username: findUser.username },
     process.env.secret_api_key,
     {
-      expiresIn: '10s',
+      expiresIn: '15m',
     }
   );
 
@@ -53,32 +52,12 @@ exports.login = catchAsync(async (req, res, next) => {
 });
 
 exports.getCurrentUser = catchAsync(async (req, res, next) => {
-  let token = validationOfToken(req);
-  if (!token) {
-    return next(
-      new AppError(
-        'You are not logged in. Please log in to get authorized.',401)
-    );
-  }
 
-  let decoded;
-  try {
-    decoded = jwt.verify(token, process.env.secret_api_key);
-  } catch (err) {
-    return next(
-      new AppError('Invalid or expired token. Please log in again.', 401)
-    );
-  }
+  res.status(200).json({
+  status: 'success',
+  user: req.user
+});
 
-  // 3. Find user by decoded ID
-  const currentUser = await Users.findById(decoded.id);
-  if (!currentUser) {
-    return next(new AppError('User not found. Please log in again.', 401));
-  }
-
-  req.user = currentUser;
-
-  res.status(200).json({ status: 'success', user: currentUser });
 });
 
 exports.validateToken = catchAsync(async (req, res, next) => {
@@ -100,12 +79,11 @@ exports.validateToken = catchAsync(async (req, res, next) => {
    
     const user = await Users.findById(decoded.id);
     if (!user) {
-      new AppError('Authorization error: User not found for this token.', 403)
+     return next( new AppError('Authorization error: User not found for this token.', 403))
     }
 
 
 
-    req.decoded = decoded;
     req.user = user;
 
     next();
