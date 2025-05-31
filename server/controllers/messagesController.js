@@ -1,11 +1,12 @@
 const Message = require("../model/messages");
 const catchAsync = require("../utility/catchAsync");
+const AppError = require("../utility/errorHandler");
 
-exports.getChat = catchAsync(async (req, res) => {
+exports.getChat = catchAsync(async (req, res ,next) => {
   const { user1, user2 } = req.params;
 
   if (!user1 || !user2) {
-    return res.status(400).json({ message: "Both user1 and user2 are required." });
+    return next(new AppError('two user required user1 and user2'))
   }
 
   const messages = await Message.find({
