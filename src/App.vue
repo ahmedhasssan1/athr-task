@@ -25,9 +25,9 @@ export default {
     };
   },
   methods: {
-    onUsernameSelection(username) {
+    onUsernameSelection({username,password}) {
       this.usernameAlreadySelected = true;
-      socket.auth = { username };
+      socket.auth = { username ,password};
       socket.connect();
     },
   },
