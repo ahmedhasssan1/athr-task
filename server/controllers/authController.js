@@ -5,6 +5,8 @@ const bcrypt = require('bcrypt');
 const AppError = require('../utility/errorHandler');
 require('dotenv').config();
 
+
+
 function validationOfToken(req) {
   if (
     req.headers.authorization &&
@@ -52,7 +54,6 @@ exports.login = catchAsync(async (req, res, next) => {
 });
 
 exports.getCurrentUser = catchAsync(async (req, res, next) => {
-      console.log('debugging ',req.user);
 
   res.status(200).json({
   status: 'success',

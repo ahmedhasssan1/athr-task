@@ -14,7 +14,7 @@ mongoose
   .then(() => console.log('MongoDB connected successfully'))
   .catch(() => console.log('there a error to connect to mongog'));
 
-const httpServer = http.createServer(app);
+const httpServer = http.createServer();
 
 const io = new Server(httpServer, {
   cors: {
@@ -22,10 +22,10 @@ const io = new Server(httpServer, {
   },
 });
 
-const port = 5000;
-const server = app.listen(port, () => {
-  console.log(`your app working in port ${port}...`);
-});
+// const port = 5000;
+// const server = app.listen(port, () => {
+//   console.log(`your app working in port ${port}...`);
+// });
 
 
 

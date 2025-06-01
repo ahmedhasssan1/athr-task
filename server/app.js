@@ -11,6 +11,15 @@ const app = express();
 
 app.use(express.json());
 
+
+
+const port = 5000;
+const server = app.listen(port, () => {
+  console.log(`your app working in port ${port}...`);
+});
+
+
+
 // Mount routers
 app.use("/users", UserRouter);
 app.use("/posts",postsRoute)
