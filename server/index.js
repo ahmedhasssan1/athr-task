@@ -7,6 +7,11 @@ const dotenv = require('dotenv');
 dotenv.config({ path: './config.env' });
 const Message = require('./model/messages');
 const chatModel = require('./model/chat');
+const catchAsync = require('./utility/catchAsync');
+const AppError = require('./utility/errorHandler');
+const Users = require('./model/user');
+const { verify } = require('crypto');
+const { compare } = require('bcrypt');
 
 const DB = process.env.dataBase_Url;
 mongoose
@@ -29,14 +34,24 @@ const io = new Server(httpServer, {
 
 
 
-io.use((socket, next) => {
+io.use(catchAsync( async(socket, next) => {
   const username = socket.handshake.auth.username;
+  const password = socket.handshake.auth.password;
   if (!username) {
     return next(new Error('invalid username'));
   }
+  const userExist=await Users.findOne({username});
+  if(!userExist){
+    return next(new AppError('this user not found please register'))
+  }
+  const validatePasssword=await compare(password,userExist.password);
+  if(!validatePasssword){
+    return next(new AppError('this password invalid'))
+  }
+
   socket.username = username;
   next();
-});
+}));
 
 const userMap = new Map(); 
 
