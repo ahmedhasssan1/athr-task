@@ -99,10 +99,7 @@ io.on('connection', (socket) => {
 // Start server only after mongoose connection is open
 mongoose.connection.once('open', () => {
   console.log('MongoDB connection is open');
-
-  // Start Change Stream watching
-  // startChangeStream();
-
+  
   const PORT = process.env.PORT || 3000;
   httpServer.listen(PORT, () =>
     console.log(`server socket.io listening at http://localhost:${PORT}`)
