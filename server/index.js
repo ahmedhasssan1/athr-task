@@ -22,8 +22,7 @@ const io = new Server(httpServer, {
   },
 });
 
-const port = process.env.PORT || 5000;
-console.log(port);
+const port = 5000;
 const server = app.listen(port, () => {
   console.log(`your app working in port ${port}...`);
 });
