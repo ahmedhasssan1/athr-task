@@ -1,5 +1,6 @@
 const catchAsync=require('./../utility/catchAsync');
 const AppError = require('../utility/errorHandler');
+const { redisClients } = require('../redisClient');
 
 //desgin pattern factory
 
@@ -18,7 +19,7 @@ exports.softDelete = (model) => {
         message: "No record exists with this ID"
       });
     }
-
+    
     res.status(200).json({
       status: "success",
       data: {
@@ -88,27 +89,38 @@ exports.getDocumentById = (model) =>
 
 exports.getAll = (model) =>
   catchAsync(async (req, res, next) => {
-
+    
     const page = parseInt(req.query.page);
     const limit = parseInt(req.query.limit);
-        if (
+    if (
       (req.query.page && (isNaN(page) || page < 1)) ||
       (req.query.limit && (isNaN(limit) || limit < 1))
     )
     {
       return next(new AppError('must page and limit be intger'))
     }
-    
     const startIndex = (page - 1) * limit;
+
+    const cacheKey = `All${model.modelName}_page${page}_limit${limit}`;
+    // console.log("key",cacheKey);
     
+    const cached = await redisClients.get(cacheKey);
+    if (cached) {
+      console.log('cache hit!');
+      return res.status(200).json(JSON.parse(cached));
+    }else{
+      console.log('cash missed');
+    }
+
     const doc = await model.find().skip(startIndex).limit(limit);
-    res.status(200).json({
+     const response = {
       result: doc.length,
-      status: 'succes',
-      data: {
-        doc,
-      },
-    });
+      status: 'success',
+      data: { doc },
+    };
+    await redisClients.setEx(cacheKey, 3600, JSON.stringify(response));
+    res.status(200).json(response);
+
   });
 
   exports.getAllUsers = (model) =>

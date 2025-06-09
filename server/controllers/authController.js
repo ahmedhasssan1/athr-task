@@ -5,8 +5,6 @@ const bcrypt = require('bcrypt');
 const AppError = require('../utility/errorHandler');
 require('dotenv').config();
 
-
-
 function validationOfToken(req) {
   if (
     req.headers.authorization &&
