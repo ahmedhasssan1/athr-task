@@ -12,10 +12,10 @@ exports.getChat = catchAsync(async (req, res ,next) => {
   const cahshkey=`chatbetween_${user1}_${user2}`;
   const cashed=await redisClients.get(cahshkey);
   if(cashed){
-    console.log("cash hit");
+    console.log("cashe hit");
     return res.status(200).json(JSON.parse(cashed))
   }else{
-    console.log('cahse missed')
+    console.log('cashe missed')
   }
 
   const messages = await Message.find({
